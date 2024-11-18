@@ -39,7 +39,7 @@ if "image" in file_type:
     print(f"Removing BG from : {input_image_path}")
 
     from PIL import Image
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     import torch
     from torchvision import transforms
     from transformers import AutoModelForImageSegmentation
@@ -52,7 +52,10 @@ if "image" in file_type:
     print(f"Loading model : {model_name}") 
     model = AutoModelForImageSegmentation.from_pretrained(model_name, trust_remote_code=True)
     torch.set_float32_matmul_precision(['high', 'highest'][0])
-    model.to('cuda')
+    
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model.to(device)
+
     model.eval()
 
 
@@ -75,7 +78,7 @@ if "image" in file_type:
         output_image_path = input_image_path.replace('.jpeg','_no_bg.png')
 
     image = Image.open(input_image_path)
-    input_images = transform_image(image).unsqueeze(0).to('cuda')
+    input_images = transform_image(image).unsqueeze(0).to(device)
 
     # Prediction
     with torch.no_grad():
