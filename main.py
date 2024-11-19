@@ -77,7 +77,7 @@ if "image" in file_type:
     elif input_image_path.endswith('.jpeg'):
         output_image_path = input_image_path.replace('.jpeg','_no_bg.png')
 
-    image = Image.open(input_image_path)
+    image = Image.open(input_image_path).convert('RGB')
     input_images = transform_image(image).unsqueeze(0).to(device)
 
     # Prediction
