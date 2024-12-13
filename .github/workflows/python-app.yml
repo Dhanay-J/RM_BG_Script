@@ -47,24 +47,24 @@ jobs:
         sudo apt-get install -y nginx
         sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
         server {
-            listen       443 ssl;
+            listen 80 ; # 443 ssl;
             server_name  localhost;
 
             client_max_body_size 12M; # allows file uploads up to 12 megabytes
 
-            ssl_certificate      /home/runner/cert.pem;
-            ssl_certificate_key  /home/runner/cert.key;
+            # ssl_certificate      /home/runner/cert.pem;
+            # ssl_certificate_key  /home/runner/cert.key;
 
             # Strong SSL settings
-            ssl_protocols TLSv1.2 TLSv1.3;
-            ssl_prefer_server_ciphers on;
-            ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
-            ssl_ecdh_curve secp384r1;
-            ssl_session_timeout  10m;
-            ssl_session_cache shared:SSL:10m;
-            ssl_session_tickets off;
-            ssl_stapling on;
-            ssl_stapling_verify on;
+            # ssl_protocols TLSv1.2 TLSv1.3;
+            # ssl_prefer_server_ciphers on;
+            # ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
+            # ssl_ecdh_curve secp384r1;
+            # ssl_session_timeout  10m;
+            # ssl_session_cache shared:SSL:10m;
+            # ssl_session_tickets off;
+            # ssl_stapling on;
+            # ssl_stapling_verify on;
 
             location / {
                 proxy_pass http://localhost:5000;
