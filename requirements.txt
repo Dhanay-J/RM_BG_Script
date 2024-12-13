@@ -19,7 +19,7 @@ networkx==3.4.2
 numpy==2.2.0
 packaging==24.2
 pillow==11.0.0
-python-magic-bin  #==0.4.14
+python-magic  #==0.4.14
 PyYAML==6.0.2
 regex==2024.11.6
 requests==2.32.3
