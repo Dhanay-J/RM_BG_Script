@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Comparison Slider</title>
+    <style>
+        .image-comparison-container {
+            position: relative;
+            max-width: {{200 if img_width < 200 else 720 if img_width>720 else img_width }}px;
+            margin: 5px auto;
+            overflow: hidden;
+        }
+
+        .image-comparison-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: {{200 if img_width < 200 else 720 if img_width>720 else img_width }}px;
+            height: 100%;
+            object-fit: fill;
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+            z-index: 2;
+        }
+
+        .slider {
+            position: absolute;
+            z-index: 3;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: white;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+        }
+
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slider-button::before,
+        .slider-button::after {
+            content: '';
+            position: absolute;
+            background: #333;
+            width: 2px;
+            height: 10px;
+        }
+
+        .slider-button::before {
+            transform: rotate(45deg);
+            left: 17px;
+        }
+
+        .slider-button::after {
+            transform: rotate(-45deg);
+            right: 17px;
+        }
+
+        .download-button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .download-button:hover {
+            background-color: #45a049;
+        }
+
+        
+        nav {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        nav div {
+            cursor: pointer;
+            padding: 10px 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav div:hover {
+            background-color: #444;
+        }
+
+        a{
+            color: #afa;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">
+            <div>
+                Home
+            </div>
+        </a>
+    </nav>
+    <div class="image-comparison-container">
+        <div class="image-wrapper">
+            <img src="data:image/png;base64,{{ processed_image }}" alt="Background Image">
+            <div class="image-overlay">
+                <img src="data:image/png;base64,{{ original_image }}" alt="Overlay Image">
+            </div>
+            <div class="slider">
+                <div class="slider-button"></div>
+            </div>
+        </div>
+    </div>
+
+    <button id="download-button" class="download-button">Download Processed Image</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.image-comparison-container');
+            const wrapper = container.querySelector('.image-wrapper');
+            const slider = container.querySelector('.slider');
+            const overlay = container.querySelector('.image-overlay');
+            const downloadButton = document.getElementById('download-button');
+
+            function setSliderPosition(x) {
+                const containerWidth = wrapper.offsetWidth;
+                const percentage = (x / containerWidth) * 100;
+                
+                slider.style.left = `${percentage}%`;
+                overlay.style.clipPath = `polygon(0 0, ${percentage}% 0, ${percentage}% 100%, 0 100%)`;
+            }
+
+            function handleMove(e) {
+                const containerRect = wrapper.getBoundingClientRect();
+                const x = e.clientX - containerRect.left;
+                const containerWidth = containerRect.width;
+
+                // Constrain x between 0 and container width
+                const constrainedX = Math.max(0, Math.min(x, containerWidth));
+                
+                setSliderPosition(constrainedX);
+            }
+
+            // Mouse events
+            slider.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                document.addEventListener('mousemove', handleMove);
+                document.addEventListener('mouseup', () => {
+                    document.removeEventListener('mousemove', handleMove);
+                });
+            });
+
+            // Touch events
+            slider.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                document.addEventListener('touchmove', (touchEvent) => {
+                    handleMove(touchEvent.touches[0]);
+                });
+                document.addEventListener('touchend', () => {
+                    document.removeEventListener('touchmove', handleMove);
+                });
+            });
+
+            // Download button functionality
+            downloadButton.addEventListener('click', () => {
+                const processedImage = document.querySelector('.image-wrapper img');
+                const link = document.createElement('a');
+                link.href = processedImage.src;
+                link.download = "data:image/png;base64,{{ processed_image }}";
+                link.click();
+            });
+
+            // Initial positioning
+            const initialPosition = wrapper.offsetWidth / 2;
+            setSliderPosition(initialPosition);
+        });
+    </script>
+</body>
+</html>
