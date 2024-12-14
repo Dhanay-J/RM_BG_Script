@@ -35,54 +35,6 @@ jobs:
         # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Install and Configure NGINX with HTTPS
-      run: |
-        # Install NGINX
-        sudo apt-get update
-        sudo apt-get install -y nginx
-        
-        # Generate a self-signed certificate (for development)
-        sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-          -keyout /home/runner/cert.key \
-          -out /home/runner/cert.pem \
-          -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost"
-
-        # Create NGINX configuration
-        sudo bash -c 'cat > /etc/nginx/sites-available/default <<EOF
-        server {
-            listen 443 ssl;
-            server_name localhost;
-
-            client_max_body_size 12M; # Allows file uploads up to 12 megabytes
-
-            ssl_certificate      /home/runner/cert.pem;
-            ssl_certificate_key  /home/runner/cert.key;
-
-            # Strong SSL settings
-            ssl_protocols TLSv1.2 TLSv1.3;
-            ssl_prefer_server_ciphers on;
-            ssl_ciphers EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH;
-            ssl_ecdh_curve secp384r1;
-            ssl_session_timeout  10m;
-            ssl_session_cache shared:SSL:10m;
-            ssl_session_tickets off;
-            ssl_stapling on;
-            ssl_stapling_verify on;
-
-            location / {
-                proxy_pass http://localhost:5000;
-                # proxy_set_header Host $host;
-                # proxy_set_header X-Real-IP $remote_addr;
-                # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                # proxy_set_header X-Forwarded-Proto $scheme;
-            }
-        }
-        EOF'
-
-        # Test NGINX configuration and restart
-        sudo nginx -t
-        sudo systemctl restart nginx
-
     - name: Start Flask Application
       run: |
-        nohup python -m waitress --listen=127.0.0.1:5000 app:app &
+        nohup python -m waitress --listen=0.0.0.0:80 app:app &
