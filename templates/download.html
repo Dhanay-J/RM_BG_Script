@@ -201,7 +201,7 @@
                 const processedImage = document.querySelector('.image-wrapper img');
                 const link = document.createElement('a');
                 link.href = processedImage.src;
-                link.download = "data:image/png;base64,{{ processed_image }}";
+                link.download = "processed_image.png";
                 link.click();
             });
 
